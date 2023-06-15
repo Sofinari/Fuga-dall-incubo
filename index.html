@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html" charset="utf-8" />
+    <title>Fuga dall'incubo</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://use.typekit.net/leb0fhi.css">
+    <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+
+    <script src="https://unpkg.com/@tensorflow/tfjs-core@3.7.0/dist/tf-core.min.js"></script>
+    <script src="https://unpkg.com/@tensorflow/tfjs-backend-webgl@3.7.0/dist/tf-backend-webgl.min.js"></script>
+    <script
+        src="https://cdn.jsdelivr.net/npm/@tensorflow-models/hand-pose-detection@2.0.0/dist/hand-pose-detection.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4/hands.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/xstate@4.37.2/lib/index.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/p5@1.4.1/lib/p5.min.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        html,
+        body {
+            height: 100%;
+        }
+
+        body {
+            width: 100%;
+            margin: 0;
+            padding: 0;
+            background-image: url(IMG/Paesaggio-1.png);
+            background-repeat: no-repeat;
+            background-size: cover;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'VT323', monospace;
+            font-size: 18pt;
+            text-align: center;
+        }
+
+        .container {
+            margin: 20px 20px;
+            position: relative;
+        }
+
+        h1 {
+            color: #fff;
+            position: absolute;
+            top: -5%;
+            font-size: 100pt;
+            background-color: #620000;
+
+        }
+
+        .parent {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            grid-column-gap: 0px;
+            grid-row-gap: 0px;
+        }
+
+        #contenuto {
+            background-color: rgba(0, 0, 0, 0);
+            position: absolute;
+            height: 60%;
+            width: 45%;
+            top: 20%;
+            /* z-index: -1; */
+        }
+
+        #container {
+            background-color: rgb(19, 19, 19);
+            width: 100%;
+            grid-area: 2 / 1 / 4 / span 2;
+            justify-self: center;
+        }
+
+        #demo {
+            position: absolute;
+            margin: 0 5%;
+            color: #ffdd00;
+            font-size: 25pt;
+            top: 28%;
+        }
+
+        #risposta {
+            background-color: rgba(43, 43, 43, 0.643);
+            grid-area: 2 / 1 / 1 / span 2;
+            border: 1px solid white;
+            transition: background-color 5s ease-in-out;
+            color: #fff;
+
+            /* transform: translate(-50%, -50%); */
+            z-index: -1;
+            position: relative;
+        }
+
+        #risposta.loading {
+            animation: loading-animation 5s ease-in-out;
+        }
+
+        @keyframes loading-animation {
+            0% {
+                background-color: rgba(255, 255, 255, 0);
+            }
+
+            100% {
+                background-color: rgb(255, 255, 255);
+            }
+        }
+
+        canvas {
+            display: block;
+            margin: 0 auto;
+            top: 0;
+            left: 0;
+            z-index: 1;
+        }
+
+        .option {
+            display: block;
+            padding: 10px;
+            font-size: 16px;
+            background-color: #b01717e5;
+            color: #fff;
+            border: 1px solid white;
+            cursor: pointer;
+            margin: 1% auto;
+            width: 50%;
+
+        }
+
+        .option:hover {
+            background-color: #001b38;
+        }
+
+        #stateMachine {
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            width: 200%;
+        }
+
+        .choices {
+            margin-top: 20px;
+        }
+
+        .state {
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+
+        .state.active {
+            background-color: #007bff;
+            color: #fff;
+        }
+
+        #cerchio {
+            position: absolute;
+            top: 60%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80px;
+            height: 80px;
+            border: 2px solid white;
+            border-radius: 50%;
+            background-color: transparent;
+
+        }
+
+        #cerchio.loaded {
+            background-color: rgb(98, 225, 159);
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Fuga dall'incubo</h1>
+    <div id="contenuto" class="parent">
+        <div id="container">
+            <p id="demo"></p>
+        </div>
+        <div id="risposta" class="layer">
+            <p style="margin-top: 1%;">Indica con la mano la tua risposta</p>
+            <div id="cerchio"> </div>
+        </div>
+        <div class="choices">
+            <div id="stateMachine" class="state"></div>
+        </div>
+    </div>
+    <footer style="font-size: 14pt; color: white;white-space: pre; left: 50%; position: relative; top: 45%;">Music by <a
+            style="color:#ffdd00"
+            href="https://pixabay.com/it/users/gioelefazzeri-16466931/?tab=audio">GioeleFazzeri</a> from <a
+            style="color:#ffdd00"
+            href="https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=15384">Pixabay</a>
+        <audio id="audio1" src="/src/Musica.mp3" autoplay="">
+            <script>
+                a = document.getElementById('audio1');
+
+                a.onended = function () { setTimeout("a.play()", 1000) }
+            </script>
+    </footer>
+    <script>
+        let capture;
+        let detector;
+        let selectedHand = null;
+        let isHandInCircle = false; // Variabile per tracciare lo stato della mano nel cerchio
+
+        const canvasSize = window.innerWidth;
+        const ratio = canvasSize / 16 * 9;
+
+        async function setup() {
+            const cerchioElement = document.getElementById('cerchio');
+            createCanvas(canvasSize, ratio);
+            capture = createCapture(VIDEO);
+            capture.hide();
+            detector = await createDetector();
+
+        }
+        function typeWriter(text, element) {
+            element.innerHTML = ""; // Clear the element's content before typing
+            let i = 0;
+            const speed = 0;
+
+            function type() {
+                if (i < text.length) {
+                    element.innerHTML += text.charAt(i);
+                    i++;
+                    setTimeout(type, speed);
+                }
+            }
+            type();
+        }
+
+
+        async function draw() {
+            clear();
+            background(0, 10);
+            if (detector && capture.loadedmetadata) {
+                const hands = await detector.estimateHands(capture.elt, { flipHorizontal: true });
+
+                noStroke();
+                for (let j = 0; j < hands.length; j++) {
+                    const hand = hands[j];
+                    const handedness = hand.handedness;
+                    const middle = hand.keypoints[9];
+
+                    let palmX = middle.x;
+                    let palmY = middle.y;
+                    let mappedPalmX = map(palmX, 0, capture.width, 0, canvasSize);
+                    let mappedPalmY = map(palmY, 0, capture.height, 0, ratio);
+
+                    if (hands.length == 2) {
+                        fill("purple");
+                    } else {
+                        if (handedness === "Left") {
+                            fill("blue");
+                            selectedHand = hand;
+                        } else if (handedness === "Right") {
+                            fill("yellow");
+                            selectedHand = hand;
+                        }
+                    }
+                    circle(mappedPalmX, mappedPalmY, 50);
+                    rispostaCerchio(handedness, selectedHand);
+                    // Call rispostaCerchio here
+                }
+            }
+        }
+
+        rispostaCerchio = function (handedness, selectedHand) {
+            if (!selectedHand) return;
+
+            // Checks whether the selected hand is inside the center cerchio
+            const middle = selectedHand.keypoints[12];
+            const wrist = selectedHand.keypoints[0];
+            let palmX = (middle.x + wrist.x) / 2;
+            let palmY = (middle.y + wrist.y) / 2;
+            let mappedPalmX = map(palmX, 0, capture.width, 0, canvasSize);
+            let mappedPalmY = map(palmY, 0, capture.height, 0, ratio);
+
+            const cerchioCenterX = width / 2;
+            const cerchioCenterY = height / 2;
+            const cerchioRadius = 200;
+
+            const distance = dist(mappedPalmX, mappedPalmY, cerchioCenterX, cerchioCenterY);
+
+            if (distance <= cerchioRadius) {
+                // The hand is inside the central cerchio
+                console.log(handedness + " Confirmed choice!");
+                const cerchioElement = document.getElementById('cerchio');
+                cerchioElement.classList.add('loaded'); // Add the CSS class "loaded" to the cerchio
+
+                // Determine the option based on the handedness
+                let option;
+
+                if (handedness === 'Right') {
+
+                    option = 'Prosegui';
+                } else if (handedness === 'Left') {
+                    option = 'Caricatore';
+                }
+
+                // Dispatch the event to the machine
+                machine.send(option);
+                console.log(targetState);
+            } else {
+                // The hand is not within the central cerchio
+                console.log("Place your hand inside the cerchio to confirm your choice.");
+                const cerchioElement = document.getElementById('cerchio');
+                cerchioElement.classList.remove('loaded'); // Remove the CSS class "loaded" from the cerchio
+            }
+        };
+
+        function createMachine(config) {
+            let currentState = config.initial;
+            let gameOver = false;
+
+            function transition(state) {
+                currentState = state;
+                render();
+
+                if (currentState === "Muori" || currentState === "Sopravvivi") {
+                    gameOver = true;
+                }
+            }
+
+            function render() {
+                const stateMachineEl = document.getElementById("stateMachine");
+                stateMachineEl.innerHTML = "";
+
+                const stateConfig = config.states[currentState];
+                const choices = Object.keys(stateConfig.on);
+
+                const choicesEl = document.createElement("div");
+                choicesEl.classList.add("choices");
+
+                choices.forEach((choice) => {
+                    const choiceDiv = document.createElement("div");
+                    choiceDiv.textContent = choice;
+                    choiceDiv.classList.add("option");
+                    choiceDiv.addEventListener("click", () => {
+                        if (!gameOver) {
+                            const targetState = stateConfig.on[choice].target;
+                            transition(targetState);
+                            console.log(targetState);
+                            txt = targetState.testo;
+                            typeWriter(txt, demoElement);
+
+                            // Call `machine.send()` with the appropriate event
+                            machine.send(choice);
+                        }
+                    });
+
+                    choicesEl.appendChild(choiceDiv);
+                });
+
+                stateMachineEl.appendChild(choicesEl);
+
+                // choices.forEach((choice) => {
+                //     const choiceDiv = document.createElement("div");
+                //     choiceDiv.textContent = choice;
+                //     choiceDiv.classList.add("option");
+                //     choiceDiv.addEventListener("gesture-detected", () => {
+                //         if (!gameOver) {
+                //             const targetState = stateConfig.on[choice].target;
+                //             transition(targetState);
+                //             console.log(targetState);
+                //             txt = targetState.entry;
+                //             typeWriter(txt, demoElement);
+
+                //             // Call `machine.send()` with the appropriate event
+                //             machine.send(choice);
+                //         }
+                //     });
+
+                //     choicesEl.appendChild(choiceDiv);
+                // });
+
+                // stateMachineEl.appendChild(choicesEl);
+
+                // Call typeWriter with the current state's entry text
+                typeWriter(stateConfig.entry, demoElement);
+            }
+
+            render();
+
+            return {
+                send: function (event) {
+                    if (!gameOver) {
+                        const textToType = "";
+                        typeWriter(textToType, demoElement);
+                        let stateConfig = config.states[currentState];
+                        let targetState = stateConfig.on[event].target;
+                        transition(targetState);
+                        console.log(targetState);
+                        txt = targetState.testo;
+                        typeWriter(txt, demoElement);
+
+                        // Call the `dispatchEvent` method to trigger the gesture event
+                        const gestureEvent = new CustomEvent("gesture-detected", {
+                            detail: {
+                                gesture: event,
+                            },
+                        });
+                        document.body.dispatchEvent(gestureEvent);
+                    }
+                },
+            };
+        }
+        // const gestureActionMapping = {
+        //     Right: {
+        //         Prosegui: "Prima scelta",
+        //         Porta: "Seconda scelta",
+        //         Divano: "Scappi",
+        //         Scappi: "Fase 2",
+        //         "Fase 2": "Vicolo",
+        //         Destra: "Strada",
+        //         Affronta: "Muori",
+        //         Polizia: "Sopravvivi",
+        //         // Principale: Uscita,
+        //         //indietro: "Principale";
+        //     },
+        //     Left: {
+        //         Caricatore: "Muori",
+        //         Tavolo: "Muori",
+        //         Sinistra: "Rete",
+        //         Superarla: "Muori",
+        //         Urla: "Trova un gruppo di persone",
+        //         Edificio: "Muori",
+        //         Rimani: "Sopravvivi",
+        //         Scaffali: "Il killer guarda in giro",
+        //         Cantina: "Il killer guarda in giro ma non scende in cantina"
+        //     }
+        // };
+        const demoElement = document.getElementById("demo");
+
+        const machine = createMachine({
+            id: "Gioco",
+            initial: "Inizio",
+            states: {
+                "Inizio": {
+                    entry: " Benvenuto nel gioco!\nPremi inizia per incominciare a giocare!",
+                    on: {
+                        //right hand
+                        Prosegui: {
+                            target: "Prima scelta"
+                        }
+                    }
+                },
+                "Prima scelta": {
+                    entry: " Ren tornò a casa stanco dal lavoro. Notò subito che il suo telefono era completamente scarico. Mentre cercava il caricatore nella cucina, udì un rumore improvviso provenire dal salotto. Qualcuno era in casa.\n Ren si spaventò. Doveva decidere se cercare il caricatore per chiamare aiuto o nascondersi dietro la porta.\n",
+
+                    on: {
+                        //right hand
+                        Porta: {
+                            target: "Seconda scelta"
+                        },
+                        //Left hand
+                        Caricatore: {
+                            target: "Muori"
+                        }
+                    }
+                },
+                "Seconda scelta": {
+                    entry: " Ren si nascose dietro la porta per non farsi notare dall'intruso. \nRiuscì camminando di soppiatto a raggiungere il salotto. Cosa fai? Ti nascondi sotto il tavolo o dietro il divano?",
+                    on: {
+                        //right hand
+                        Divano: {
+                            target: "Scappi"
+                        },
+                        //Left hand
+                        Tavolo: {
+                            target: "Muori"
+                        }
+                    }
+                },
+                Scappi: {
+                    entry: " Hai deciso di nasconderti dietro il divano. L'assassino non nota Ren ed esce dal salotto entrando in cucina, Ren sfrutta l'opportunità per scappare di casa. Corre per la strada e s'imbatte in un vicolo",
+                    on: {
+                        //right hand
+                        "Fase 2": {
+                            target: "Vicolo"
+                        }
+                    }
+                },
+                Vicolo: {
+                    entry: " Ren si fermò per prendere fiato ma non aveva molto tempo prima che il killer lo raggiungesse! Guardò davanti a sè e vide che aveva due opzioni, girare a sinistra o a destra",
+                    on: {
+                        //Left hand
+                        Sinistra: {
+                            target: "Rete"
+                        },
+                        //right hand
+                        Destra: {
+                            target: "Strada"
+                        }
+                    }
+                },
+                Rete: {
+                    entry: " Ren sceglie di andare a sinistra e si imbatte in una rete fatiscente che blocca il passaggio. Cosa fa?",
+                    on: {
+                        //right hand
+                        indietro: {
+                            target: "Principale"
+                        },
+                        //Left hand
+                        Superarla: {
+                            target: "Muori"
+                        }
+                    }
+                },
+                Principale: {
+                    entry: " Ren ritorna nel vicolo principale e trova una piccola strada laterale che conduce a una stazione di servizio. Trova un telefono funzionante e chiama la polizia, ottenendo finalmente aiuto.",
+                    on: {
+                        //right hand
+                        Uscita: {
+                            target: "Sopravvivi"
+                        },
+                    }
+                },
+                Strada: {
+                    entry: " Ren decide di andare a destra e si imbatte in una strada deserta. Cosa fa?",
+                    on: {
+                        //right hand
+                        Correre: {
+                            target: "Ren corre urlando e il killer lo insegue"
+                        },
+                        //Left hand
+                        Secondaria: {
+                            target: "Due edifici"
+                        }
+                    }
+                },
+                "Ren corre urlando e il killer lo insegue": {
+                    entry: " Corre lungo la strada, sperando di trovare aiuto o un nascondiglio. Mentre Ren corre lungo la strada deserta, il killer lo raggiunge e inizia una caccia spietata. Ren deve fare delle scelte rapide per sfuggire, con esiti incerti.",
+                    on: {
+                        //right hand
+                        Affronta: {
+                            target: "Muori"
+                        },
+                        //Left hand
+                        Urla: {
+                            target: "Trova un gruppo di persone"
+                        }
+                    }
+                },
+                "Due edifici": {
+                    entry: " Ren cerca una via secondaria per evitare l'esposizione e continuare la fuga. alla fine della strada si imbatte in due edifici: un vecchio magazzino e un edificio in costruzione",
+                    on: {
+                        //right hand
+                        Magazzino: {
+                            target: "Trovi un telefono e chiami la polizia"
+                        },
+                        //Left hand
+                        Edificio: {
+                            target: "Muori"
+                        }
+                    }
+                },
+                "Trova un gruppo di persone": {
+                    entry: " Un gruppo di persone che hanno sentito le urla va incontro a Ren per capire cosa è successo, grazie a loro sopravvivi e il killer scappa via.",
+                    on: {
+                        //right hand
+                        "Raggiungi le persone": {
+                            target: "Sopravvivi"
+                        }
+                    }
+                },
+                "Trovi un telefono e chiami la polizia": {
+                    entry: " All'interno del magazzino Ren scopre che c'è un telefono, lo raggiunge e chiama immediatamente la polozia. Loro lo avvisano che ci vorrà un pò prima che lo raggiungano, nel frattempo gli indicano che deve rimanere nascosto e stare in guardia. Dove ti nascondi?",
+                    on: {
+                        //right hand
+                        Scaffali: {
+                            target: "Il killer guarda in giro"
+                        },
+                        //Left hand
+                        Cantina: {
+                            target: "Il killer guarda in giro ma non scende in cantina"
+                        }
+                    }
+                },
+                "Il killer guarda in giro": {
+                    entry: " Ren decide di rimanere fermo dietro agli scaffali del magazzino, sperando che il killer non lo trovi. Il killer entra nel magazzino e guarda in giro. Ren  emette un suono involontario che attira l'attenzione del killer. Il killer si avvicina. Cosa fai? Cambi nascondiglio o rimani fermo?",
+                    on: {
+                        //right hand
+                        Cambia: {
+                            target: "Muori"
+                        },
+                        //Left hand
+                        Rimani: {
+                            target: "Sopravvivi"
+                        }
+                    }
+                },
+                "Il killer guarda in giro ma non scende in cantina": {
+                    entry: " Ren decide di scendere nella cantina del magazzino, sperando di trovare un nascondiglio più sicuro. Il killer entra nel magazzino e guarda in giro ma non scende in cantina. Successivamente se ne va. Ren sopravvive",
+                    on: {
+                        //right hand
+                        Polizia: {
+                            target: "Sopravvivi"
+                        }
+                    }
+                },
+                Muori: {
+                    // entry: " Hai perso! Premi Ricomincia per giocare di nuovo.",
+                    on: {
+                        Ricomincia: {
+                            target: "Inizio",
+                            action: () => resetGame()
+                        }
+                    }
+                },
+                Sopravvivi: {}
+            },
+            predictableActionArguments: true,
+            preserveActionOrder: true
+        });
+        // document.body.addEventListener("gesture-detected", (event) => {
+        //     console.log("Gesture detected:", event.detail.gesture);
+        //     const gestures = event.detail.gestures;
+
+        //     gestures.forEach((gesture) => {
+        //         const actions = gestureActionMapping[gesture];
+
+        //         if (actions) {
+        //             Object.keys(actions).forEach((action) => {
+        //                 const target = actions[action];
+        //                 machine.send(action);
+        //             });
+        //         }
+        //     });
+        // });
+
+
+        function resetGame() {
+            machine.reset();
+            txt = '';
+            typeWriter(txt, demoElement);
+        }
+
+        async function createDetector() {
+            const mediaPipeConfig = {
+                runtime: "mediapipe",
+                modelType: "full",
+                maxHands: 2,
+                solutionPath: `https://cdn.jsdelivr.net/npm/@mediapipe/hands`,
+            };
+            return window.handPoseDetection.createDetector(window.handPoseDetection.SupportedModels.MediaPipeHands, mediaPipeConfig);
+        }
+    </script>
+
+</body>
+
+
+</html>
