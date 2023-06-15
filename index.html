@@ -211,20 +211,19 @@
         let detector;
         let selectedHand = null;
         let isHandInCircle = false; // Variabile per tracciare lo stato della mano nel cerchio
-
-        const canvasSize = window.innerWidth;
-        const ratio = canvasSize / 16 * 9;
+        const demoElement = document.getElementById("demo");
+        const ratio = window.innerWidth / 16 * 9;
 
         async function setup() {
             const cerchioElement = document.getElementById('cerchio');
-            createCanvas(canvasSize, ratio);
+            createCanvas(window.innerWidth, ratio);
             capture = createCapture(VIDEO);
             capture.hide();
             detector = await createDetector();
 
         }
         function typeWriter(text, element) {
-            element.innerHTML = ""; // Clear the element's content before typing
+            element.innerHTML = ""; // Cancella il contenuto dell'elemento prima di digitare
             let i = 0;
             const speed = 0;
 
@@ -253,7 +252,7 @@
 
                     let palmX = middle.x;
                     let palmY = middle.y;
-                    let mappedPalmX = map(palmX, 0, capture.width, 0, canvasSize);
+                    let mappedPalmX = map(palmX, 0, capture.width, 0, window.innerWidth);
                     let mappedPalmY = map(palmY, 0, capture.height, 0, ratio);
 
                     if (hands.length == 2) {
@@ -269,7 +268,7 @@
                     }
                     circle(mappedPalmX, mappedPalmY, 50);
                     rispostaCerchio(handedness, selectedHand);
-                    // Call rispostaCerchio here
+                    // Chiamata rispostaCerchio qui
                 }
             }
         }
@@ -277,45 +276,19 @@
         rispostaCerchio = function (handedness, selectedHand) {
             if (!selectedHand) return;
 
-            // Checks whether the selected hand is inside the center cerchio
-            const middle = selectedHand.keypoints[12];
-            const wrist = selectedHand.keypoints[0];
-            let palmX = (middle.x + wrist.x) / 2;
-            let palmY = (middle.y + wrist.y) / 2;
-            let mappedPalmX = map(palmX, 0, capture.width, 0, canvasSize);
-            let mappedPalmY = map(palmY, 0, capture.height, 0, ratio);
-
-            const cerchioCenterX = width / 2;
-            const cerchioCenterY = height / 2;
-            const cerchioRadius = 200;
-
-            const distance = dist(mappedPalmX, mappedPalmY, cerchioCenterX, cerchioCenterY);
-
-            if (distance <= cerchioRadius) {
-                // The hand is inside the central cerchio
-                console.log(handedness + " Confirmed choice!");
-                const cerchioElement = document.getElementById('cerchio');
-                cerchioElement.classList.add('loaded'); // Add the CSS class "loaded" to the cerchio
-
-                // Determine the option based on the handedness
-                let option;
-
-                if (handedness === 'Right') {
-
-                    option = 'Prosegui';
-                } else if (handedness === 'Left') {
-                    option = 'Caricatore';
-                }
-
-                // Dispatch the event to the machine
-                machine.send(option);
-                console.log(targetState);
-            } else {
-                // The hand is not within the central cerchio
-                console.log("Place your hand inside the cerchio to confirm your choice.");
-                const cerchioElement = document.getElementById('cerchio');
-                cerchioElement.classList.remove('loaded'); // Remove the CSS class "loaded" from the cerchio
+            // Controlla se la mano selezionata è all'interno del cerchio centrale
+            if (handedness === 'Right') {
+                timer = this.setTimeout(() => {
+                    machine.send('destra');
+                    timer = 0;
+                }, 2000);
+            } else if (handedness === 'Left') {
+                timer = this.setTimeout(() => {
+                    machine.send('sinistra');
+                    timer = 20000;
+                }, 2000);
             }
+
         };
 
         function createMachine(config) {
@@ -353,7 +326,7 @@
                             txt = targetState.testo;
                             typeWriter(txt, demoElement);
 
-                            // Call `machine.send()` with the appropriate event
+                            // Chiamare `machine.send()` con l'evento appropriato
                             machine.send(choice);
                         }
                     });
@@ -363,29 +336,7 @@
 
                 stateMachineEl.appendChild(choicesEl);
 
-                // choices.forEach((choice) => {
-                //     const choiceDiv = document.createElement("div");
-                //     choiceDiv.textContent = choice;
-                //     choiceDiv.classList.add("option");
-                //     choiceDiv.addEventListener("gesture-detected", () => {
-                //         if (!gameOver) {
-                //             const targetState = stateConfig.on[choice].target;
-                //             transition(targetState);
-                //             console.log(targetState);
-                //             txt = targetState.entry;
-                //             typeWriter(txt, demoElement);
-
-                //             // Call `machine.send()` with the appropriate event
-                //             machine.send(choice);
-                //         }
-                //     });
-
-                //     choicesEl.appendChild(choiceDiv);
-                // });
-
-                // stateMachineEl.appendChild(choicesEl);
-
-                // Call typeWriter with the current state's entry text
+                // Chiamare typeWriter con il testo di immissione dello stato corrente
                 typeWriter(stateConfig.entry, demoElement);
             }
 
@@ -403,7 +354,7 @@
                         txt = targetState.testo;
                         typeWriter(txt, demoElement);
 
-                        // Call the `dispatchEvent` method to trigger the gesture event
+                        // Chiamare il metodo `dispatchEvent` per attivare l'evento gesto
                         const gestureEvent = new CustomEvent("gesture-detected", {
                             detail: {
                                 gesture: event,
@@ -414,231 +365,172 @@
                 },
             };
         }
-        // const gestureActionMapping = {
-        //     Right: {
-        //         Prosegui: "Prima scelta",
-        //         Porta: "Seconda scelta",
-        //         Divano: "Scappi",
-        //         Scappi: "Fase 2",
-        //         "Fase 2": "Vicolo",
-        //         Destra: "Strada",
-        //         Affronta: "Muori",
-        //         Polizia: "Sopravvivi",
-        //         // Principale: Uscita,
-        //         //indietro: "Principale";
-        //     },
-        //     Left: {
-        //         Caricatore: "Muori",
-        //         Tavolo: "Muori",
-        //         Sinistra: "Rete",
-        //         Superarla: "Muori",
-        //         Urla: "Trova un gruppo di persone",
-        //         Edificio: "Muori",
-        //         Rimani: "Sopravvivi",
-        //         Scaffali: "Il killer guarda in giro",
-        //         Cantina: "Il killer guarda in giro ma non scende in cantina"
-        //     }
-        // };
-        const demoElement = document.getElementById("demo");
+
+        
 
         const machine = createMachine({
             id: "Gioco",
             initial: "Inizio",
             states: {
                 "Inizio": {
-                    entry: " Benvenuto nel gioco!\nPremi inizia per incominciare a giocare!",
+                    entry: "Benvenuto nel gioco!\nPremi inizia per incominciare a giocare!",
                     on: {
-                        //right hand
-                        Prosegui: {
+                        destra: {
                             target: "Prima scelta"
                         }
                     }
                 },
                 "Prima scelta": {
-                    entry: " Ren tornò a casa stanco dal lavoro. Notò subito che il suo telefono era completamente scarico. Mentre cercava il caricatore nella cucina, udì un rumore improvviso provenire dal salotto. Qualcuno era in casa.\n Ren si spaventò. Doveva decidere se cercare il caricatore per chiamare aiuto o nascondersi dietro la porta.\n",
-
+                    entry: "Ren tornò a casa stanco dal lavoro. Notò subito che il suo telefono era completamente scarico. Mentre cercava il caricatore nella cucina, udì un rumore improvviso provenire dal salotto. Qualcuno era in casa.\nRen si spaventò. Doveva decidere se cercare il caricatore per chiamare aiuto o nascondersi dietro la porta.\n",
                     on: {
-                        //right hand
-                        Porta: {
+                        destra: {
                             target: "Seconda scelta"
                         },
-                        //Left hand
-                        Caricatore: {
+                        sinistra: {
                             target: "Muori"
                         }
                     }
                 },
                 "Seconda scelta": {
-                    entry: " Ren si nascose dietro la porta per non farsi notare dall'intruso. \nRiuscì camminando di soppiatto a raggiungere il salotto. Cosa fai? Ti nascondi sotto il tavolo o dietro il divano?",
+                    entry: "Ren si nascose dietro la porta per non farsi notare dall'intruso.\nRiuscì camminando di soppiatto a raggiungere il salotto. Cosa fai? Ti nascondi sotto il tavolo o dietro il divano?",
                     on: {
-                        //right hand
-                        Divano: {
+                        destra: {
                             target: "Scappi"
                         },
-                        //Left hand
-                        Tavolo: {
+                        sinistra: {
                             target: "Muori"
                         }
                     }
                 },
-                Scappi: {
-                    entry: " Hai deciso di nasconderti dietro il divano. L'assassino non nota Ren ed esce dal salotto entrando in cucina, Ren sfrutta l'opportunità per scappare di casa. Corre per la strada e s'imbatte in un vicolo",
+                "Scappi": {
+                    entry: "Hai deciso di nasconderti dietro il divano. L'assassino non nota Ren ed esce dal salotto entrando in cucina, Ren sfrutta l'opportunità per scappare di casa. Corre per la strada e s'imbatte in un vicolo",
                     on: {
-                        //right hand
-                        "Fase 2": {
+                        destra: {
                             target: "Vicolo"
                         }
                     }
                 },
-                Vicolo: {
-                    entry: " Ren si fermò per prendere fiato ma non aveva molto tempo prima che il killer lo raggiungesse! Guardò davanti a sè e vide che aveva due opzioni, girare a sinistra o a destra",
+                "Vicolo": {
+                    entry: "Ren si fermò per prendere fiato ma non aveva molto tempo prima che il killer lo raggiungesse! Guardò davanti a sé e vide che aveva due opzioni, girare a sinistra o a destra",
                     on: {
-                        //Left hand
-                        Sinistra: {
+                        sinistra: {
                             target: "Rete"
                         },
-                        //right hand
-                        Destra: {
+                        destra: {
                             target: "Strada"
                         }
                     }
                 },
-                Rete: {
-                    entry: " Ren sceglie di andare a sinistra e si imbatte in una rete fatiscente che blocca il passaggio. Cosa fa?",
+                "Rete": {
+                    entry: "Ren sceglie di andare a sinistra e si imbatte in una rete fatiscente che blocca il passaggio. Cosa fa?",
                     on: {
-                        //right hand
-                        indietro: {
+                        destra: {
                             target: "Principale"
                         },
-                        //Left hand
-                        Superarla: {
+                        sinistra: {
                             target: "Muori"
                         }
                     }
                 },
-                Principale: {
-                    entry: " Ren ritorna nel vicolo principale e trova una piccola strada laterale che conduce a una stazione di servizio. Trova un telefono funzionante e chiama la polizia, ottenendo finalmente aiuto.",
+                "Principale": {
+                    entry: "Ren ritorna nel vicolo principale e trova una piccola strada laterale che conduce a una stazione di servizio. Trova un telefono funzionante e chiama la polizia, ottenendo finalmente aiuto.",
                     on: {
-                        //right hand
-                        Uscita: {
+                        destra: {
                             target: "Sopravvivi"
                         },
                     }
                 },
-                Strada: {
-                    entry: " Ren decide di andare a destra e si imbatte in una strada deserta. Cosa fa?",
+                "Strada": {
+                    entry: "Ren decide di andare a destra e si imbatte in una strada deserta. Cosa fa?",
                     on: {
-                        //right hand
-                        Correre: {
+                        destra: {
                             target: "Ren corre urlando e il killer lo insegue"
                         },
-                        //Left hand
-                        Secondaria: {
+                        sinistra: {
                             target: "Due edifici"
                         }
                     }
                 },
                 "Ren corre urlando e il killer lo insegue": {
-                    entry: " Corre lungo la strada, sperando di trovare aiuto o un nascondiglio. Mentre Ren corre lungo la strada deserta, il killer lo raggiunge e inizia una caccia spietata. Ren deve fare delle scelte rapide per sfuggire, con esiti incerti.",
+                    entry: "Corre lungo la strada, sperando di trovare aiuto o un nascondiglio. Mentre Ren corre lungo la strada deserta, il killer lo raggiunge e inizia una caccia spietata. Ren deve fare delle scelte rapide per sfuggire, con esiti incerti.",
                     on: {
-                        //right hand
-                        Affronta: {
+                        destra: {
                             target: "Muori"
                         },
-                        //Left hand
-                        Urla: {
+                        sinistra: {
                             target: "Trova un gruppo di persone"
                         }
                     }
                 },
                 "Due edifici": {
-                    entry: " Ren cerca una via secondaria per evitare l'esposizione e continuare la fuga. alla fine della strada si imbatte in due edifici: un vecchio magazzino e un edificio in costruzione",
+                    entry: "Ren cerca una via secondaria per evitare l'esposizione e continuare la fuga. Alla fine della strada si imbatte in due edifici: un vecchio magazzino e un edificio in costruzione",
                     on: {
-                        //right hand
-                        Magazzino: {
+                        destra: {
                             target: "Trovi un telefono e chiami la polizia"
                         },
-                        //Left hand
-                        Edificio: {
+                        sinistra: {
                             target: "Muori"
                         }
                     }
                 },
                 "Trova un gruppo di persone": {
-                    entry: " Un gruppo di persone che hanno sentito le urla va incontro a Ren per capire cosa è successo, grazie a loro sopravvivi e il killer scappa via.",
+                    entry: "Un gruppo di persone che hanno sentito le urla va incontro a Ren per capire cosa è successo, grazie a loro sopravvivi e il killer scappa via.",
                     on: {
-                        //right hand
-                        "Raggiungi le persone": {
+                        destra: {
                             target: "Sopravvivi"
                         }
                     }
                 },
                 "Trovi un telefono e chiami la polizia": {
-                    entry: " All'interno del magazzino Ren scopre che c'è un telefono, lo raggiunge e chiama immediatamente la polozia. Loro lo avvisano che ci vorrà un pò prima che lo raggiungano, nel frattempo gli indicano che deve rimanere nascosto e stare in guardia. Dove ti nascondi?",
+                    entry: "All'interno del magazzino Ren scopre che c'è un telefono, lo raggiunge e chiama immediatamente la polizia. Loro lo avvisano che ci vorrà un po' prima che lo raggiungano, nel frattempo gli indicano che deve rimanere nascosto e stare in guardia. Dove ti nascondi?",
                     on: {
-                        //right hand
-                        Scaffali: {
+                        destra: {
                             target: "Il killer guarda in giro"
                         },
-                        //Left hand
-                        Cantina: {
+                        sinistra: {
                             target: "Il killer guarda in giro ma non scende in cantina"
                         }
                     }
                 },
                 "Il killer guarda in giro": {
-                    entry: " Ren decide di rimanere fermo dietro agli scaffali del magazzino, sperando che il killer non lo trovi. Il killer entra nel magazzino e guarda in giro. Ren  emette un suono involontario che attira l'attenzione del killer. Il killer si avvicina. Cosa fai? Cambi nascondiglio o rimani fermo?",
+                    entry: "Ren decide di rimanere fermo dietro agli scaffali del magazzino, sperando che il killer non lo trovi. Il killer entra nel magazzino e guarda in giro. Ren emette un suono involontario che attira l'attenzione del killer. Il killer si avvicina. Cosa fai? Cambi nascondiglio o rimani fermo?",
                     on: {
-                        //right hand
-                        Cambia: {
+                        destra: {
                             target: "Muori"
                         },
-                        //Left hand
-                        Rimani: {
+                        sinistra: {
                             target: "Sopravvivi"
                         }
                     }
                 },
                 "Il killer guarda in giro ma non scende in cantina": {
-                    entry: " Ren decide di scendere nella cantina del magazzino, sperando di trovare un nascondiglio più sicuro. Il killer entra nel magazzino e guarda in giro ma non scende in cantina. Successivamente se ne va. Ren sopravvive",
+                    entry: "Ren decide di scendere nella cantina del magazzino, sperando di trovare un nascondiglio più sicuro. Il killer entra nel magazzino e guarda in giro ma non scende in cantina. Successivamente se ne va. Ren sopravvive",
                     on: {
-                        //right hand
-                        Polizia: {
+                        destra: {
                             target: "Sopravvivi"
                         }
                     }
                 },
                 Muori: {
-                    // entry: " Hai perso! Premi Ricomincia per giocare di nuovo.",
                     on: {
-                        Ricomincia: {
+                        sinistra: {
                             target: "Inizio",
                             action: () => resetGame()
                         }
                     }
                 },
-                Sopravvivi: {}
+                Sopravvivi: {
+                    on: {
+                        sinistra: {
+                            target: "Inizio",
+                            action: () => resetGame()
+                        }
+                    }
+                }
             },
             predictableActionArguments: true,
             preserveActionOrder: true
         });
-        // document.body.addEventListener("gesture-detected", (event) => {
-        //     console.log("Gesture detected:", event.detail.gesture);
-        //     const gestures = event.detail.gestures;
-
-        //     gestures.forEach((gesture) => {
-        //         const actions = gestureActionMapping[gesture];
-
-        //         if (actions) {
-        //             Object.keys(actions).forEach((action) => {
-        //                 const target = actions[action];
-        //                 machine.send(action);
-        //             });
-        //         }
-        //     });
-        // });
-
-
         function resetGame() {
             machine.reset();
             txt = '';
