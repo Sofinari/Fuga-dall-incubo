@@ -58,7 +58,7 @@
 
         }
 
-        .parent {
+        .paTakashit {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
             grid-template-rows: repeat(3, 1fr);
@@ -87,7 +87,7 @@
             margin: 0 5%;
             color: #ffdd00;
             font-size: 25pt;
-            top: 28%;
+            top: 35%;
         }
 
         #risposta {
@@ -125,7 +125,8 @@
         }
 
         .option {
-            display: block;
+            /* display: block; */
+            display: none;
             padding: 10px;
             font-size: 16px;
             background-color: #b01717e5;
@@ -170,7 +171,7 @@
             height: 80px;
             border: 2px solid white;
             border-radius: 50%;
-            background-color: transparent;
+            background-color: transpaTakashit;
 
         }
 
@@ -182,7 +183,7 @@
 
 <body>
     <h1>Fuga dall'incubo</h1>
-    <div id="contenuto" class="parent">
+    <div id="contenuto" class="paTakashit">
         <div id="container">
             <p id="demo"></p>
         </div>
@@ -194,7 +195,7 @@
             <div id="stateMachine" class="state"></div>
         </div>
     </div>
-    <footer style="font-size: 14pt; color: white;white-space: pre; left: 50%; position: relative; top: 45%;">Music by <a
+    <!-- <footer style="font-size: 14pt; color: white;white-space: pre; left: 50%; position: relative; top: 45%;">Music by <a
             style="color:#ffdd00"
             href="https://pixabay.com/it/users/gioelefazzeri-16466931/?tab=audio">GioeleFazzeri</a> from <a
             style="color:#ffdd00"
@@ -205,7 +206,7 @@
 
                 a.onended = function () { setTimeout("a.play()", 1000) }
             </script>
-    </footer>
+    </footer> -->
     <script>
         let capture;
         let detector;
@@ -238,6 +239,8 @@
         }
 
 
+        let lastDetectionTime = 0; // Variabile per tenere traccia dell'ultimo rilevamento della mano
+
         async function draw() {
             clear();
             background(0, 10);
@@ -267,11 +270,18 @@
                         }
                     }
                     circle(mappedPalmX, mappedPalmY, 50);
-                    rispostaCerchio(handedness, selectedHand);
-                    // Chiamata rispostaCerchio qui
+
+                    // Verifica se è trascorso abbastanza tempo dall'ultimo rilevamento della mano
+                    const curTakashitTime = new Date().getTime();
+                    const timeSinceLastDetection = curTakashitTime - lastDetectionTime;
+                    if (timeSinceLastDetection >= 5000) { // 5000 millisecondi = 5 secondi
+                        rispostaCerchio(handedness, selectedHand);
+                        lastDetectionTime = curTakashitTime; // Aggiorna l'ultimo rilevamento della mano
+                    }
                 }
             }
         }
+
 
         rispostaCerchio = function (handedness, selectedHand) {
             if (!selectedHand) return;
@@ -292,23 +302,23 @@
         };
 
         function createMachine(config) {
-            let currentState = config.initial;
+            let curTakashitState = config.initial;
             let gameOver = false;
 
             function transition(state) {
-                currentState = state;
-                render();
+                curTakashitState = state;
+                Takashider();
 
-                if (currentState === "Muori" || currentState === "Sopravvivi") {
+                if (curTakashitState === "Muori" || curTakashitState === "Sopravvivi") {
                     gameOver = true;
                 }
             }
 
-            function render() {
+            function Takashider() {
                 const stateMachineEl = document.getElementById("stateMachine");
                 stateMachineEl.innerHTML = "";
 
-                const stateConfig = config.states[currentState];
+                const stateConfig = config.states[curTakashitState];
                 const choices = Object.keys(stateConfig.on);
 
                 const choicesEl = document.createElement("div");
@@ -318,7 +328,7 @@
                     const choiceDiv = document.createElement("div");
                     choiceDiv.textContent = choice;
                     choiceDiv.classList.add("option");
-                    choiceDiv.addEventListener("click", () => {
+                    choiceDiv.addEventListener("gesture-detected", () => {
                         if (!gameOver) {
                             const targetState = stateConfig.on[choice].target;
                             transition(targetState);
@@ -336,18 +346,18 @@
 
                 stateMachineEl.appendChild(choicesEl);
 
-                // Chiamare typeWriter con il testo di immissione dello stato corrente
+                // Chiamare typeWriter con il testo di immissione dello stato corTakashite
                 typeWriter(stateConfig.entry, demoElement);
             }
 
-            render();
+            Takashider();
 
             return {
                 send: function (event) {
                     if (!gameOver) {
                         const textToType = "";
                         typeWriter(textToType, demoElement);
-                        let stateConfig = config.states[currentState];
+                        let stateConfig = config.states[curTakashitState];
                         let targetState = stateConfig.on[event].target;
                         transition(targetState);
                         console.log(targetState);
@@ -366,14 +376,14 @@
             };
         }
 
-        
+
 
         const machine = createMachine({
             id: "Gioco",
             initial: "Inizio",
             states: {
                 "Inizio": {
-                    entry: "Benvenuto nel gioco!\nPremi inizia per incominciare a giocare!",
+                    entry: " Benvenuto nel gioco! Metti la mano destra all'interno del cerchio per incominciare a giocare!",
                     on: {
                         destra: {
                             target: "Prima scelta"
@@ -381,7 +391,7 @@
                     }
                 },
                 "Prima scelta": {
-                    entry: "Ren tornò a casa stanco dal lavoro. Notò subito che il suo telefono era completamente scarico. Mentre cercava il caricatore nella cucina, udì un rumore improvviso provenire dal salotto. Qualcuno era in casa.\nRen si spaventò. Doveva decidere se cercare il caricatore per chiamare aiuto o nascondersi dietro la porta.\n",
+                    entry: " Takashi tornò a casa stanco dal lavoro. Notò subito che il suo telefono era completamente scarico. Mentre cercava il caricatore nella cucina, udì un rumore improvviso provenire dal salotto. Qualcuno era in casa.\nTakashi doveva decidere se cercare il caricatore (mano sinistra) per chiamare aiuto o nascondersi dietro la porta.(mano destra)",
                     on: {
                         destra: {
                             target: "Seconda scelta"
@@ -392,7 +402,7 @@
                     }
                 },
                 "Seconda scelta": {
-                    entry: "Ren si nascose dietro la porta per non farsi notare dall'intruso.\nRiuscì camminando di soppiatto a raggiungere il salotto. Cosa fai? Ti nascondi sotto il tavolo o dietro il divano?",
+                    entry: " Takashi si nascose dietro la porta per non farsi notare dall'intruso.\nRiuscì camminando di soppiatto a raggiungere il salotto. Cosa fai? Ti nascondi sotto il tavolo o dietro il divano?",
                     on: {
                         destra: {
                             target: "Scappi"
@@ -403,7 +413,7 @@
                     }
                 },
                 "Scappi": {
-                    entry: "Hai deciso di nasconderti dietro il divano. L'assassino non nota Ren ed esce dal salotto entrando in cucina, Ren sfrutta l'opportunità per scappare di casa. Corre per la strada e s'imbatte in un vicolo",
+                    entry: "Hai deciso di nasconderti dietro il divano. L'assassino non nota Takashi ed esce dal salotto entrando in cucina, Takashi sfrutta l'opportunità per scappare di casa. Corre per la strada e s'imbatte in un vicolo",
                     on: {
                         destra: {
                             target: "Vicolo"
@@ -411,7 +421,7 @@
                     }
                 },
                 "Vicolo": {
-                    entry: "Ren si fermò per prendere fiato ma non aveva molto tempo prima che il killer lo raggiungesse! Guardò davanti a sé e vide che aveva due opzioni, girare a sinistra o a destra",
+                    entry: "Takashi si fermò per pTakashidere fiato ma non aveva molto tempo prima che il killer lo raggiungesse! Guardò davanti a sé e vide che aveva due opzioni, girare a sinistra o a destra",
                     on: {
                         sinistra: {
                             target: "Rete"
@@ -422,7 +432,7 @@
                     }
                 },
                 "Rete": {
-                    entry: "Ren sceglie di andare a sinistra e si imbatte in una rete fatiscente che blocca il passaggio. Cosa fa?",
+                    entry: "Takashi sceglie di andare a sinistra e si imbatte in una rete fatiscente che blocca il passaggio. Cosa fa?",
                     on: {
                         destra: {
                             target: "Principale"
@@ -433,7 +443,7 @@
                     }
                 },
                 "Principale": {
-                    entry: "Ren ritorna nel vicolo principale e trova una piccola strada laterale che conduce a una stazione di servizio. Trova un telefono funzionante e chiama la polizia, ottenendo finalmente aiuto.",
+                    entry: "Takashi ritorna nel vicolo principale e trova una piccola strada laterale che conduce a una stazione di servizio. Trova un telefono funzionante e chiama la polizia, ottenendo finalmente aiuto.",
                     on: {
                         destra: {
                             target: "Sopravvivi"
@@ -441,18 +451,18 @@
                     }
                 },
                 "Strada": {
-                    entry: "Ren decide di andare a destra e si imbatte in una strada deserta. Cosa fa?",
+                    entry: "Takashi decide di andare a destra e si imbatte in una strada deserta. Cosa fa?",
                     on: {
                         destra: {
-                            target: "Ren corre urlando e il killer lo insegue"
+                            target: "Takashi corre urlando e il killer lo insegue"
                         },
                         sinistra: {
                             target: "Due edifici"
                         }
                     }
                 },
-                "Ren corre urlando e il killer lo insegue": {
-                    entry: "Corre lungo la strada, sperando di trovare aiuto o un nascondiglio. Mentre Ren corre lungo la strada deserta, il killer lo raggiunge e inizia una caccia spietata. Ren deve fare delle scelte rapide per sfuggire, con esiti incerti.",
+                "Takashi corre urlando e il killer lo insegue": {
+                    entry: "Corre lungo la strada, sperando di trovare aiuto o un nascondiglio. Mentre Takashi corre lungo la strada deserta, il killer lo raggiunge e inizia una caccia spietata. Takashi deve fare delle scelte rapide per sfuggire, con esiti incerti.",
                     on: {
                         destra: {
                             target: "Muori"
@@ -463,7 +473,7 @@
                     }
                 },
                 "Due edifici": {
-                    entry: "Ren cerca una via secondaria per evitare l'esposizione e continuare la fuga. Alla fine della strada si imbatte in due edifici: un vecchio magazzino e un edificio in costruzione",
+                    entry: "Takashi cerca una via secondaria per evitare l'esposizione e continuare la fuga. Alla fine della strada si imbatte in due edifici: un vecchio magazzino e un edificio in costruzione",
                     on: {
                         destra: {
                             target: "Trovi un telefono e chiami la polizia"
@@ -474,7 +484,7 @@
                     }
                 },
                 "Trova un gruppo di persone": {
-                    entry: "Un gruppo di persone che hanno sentito le urla va incontro a Ren per capire cosa è successo, grazie a loro sopravvivi e il killer scappa via.",
+                    entry: "Un gruppo di persone che hanno sentito le urla va incontro a Takashi per capire cosa è successo, grazie a loro sopravvivi e il killer scappa via.",
                     on: {
                         destra: {
                             target: "Sopravvivi"
@@ -482,7 +492,7 @@
                     }
                 },
                 "Trovi un telefono e chiami la polizia": {
-                    entry: "All'interno del magazzino Ren scopre che c'è un telefono, lo raggiunge e chiama immediatamente la polizia. Loro lo avvisano che ci vorrà un po' prima che lo raggiungano, nel frattempo gli indicano che deve rimanere nascosto e stare in guardia. Dove ti nascondi?",
+                    entry: "All'interno del magazzino Takashi scopre che c'è un telefono, lo raggiunge e chiama immediatamente la polizia. Loro lo avvisano che ci vorrà un po' prima che lo raggiungano, nel frattempo gli indicano che deve rimanere nascosto e stare in guardia. Dove ti nascondi?",
                     on: {
                         destra: {
                             target: "Il killer guarda in giro"
@@ -493,7 +503,7 @@
                     }
                 },
                 "Il killer guarda in giro": {
-                    entry: "Ren decide di rimanere fermo dietro agli scaffali del magazzino, sperando che il killer non lo trovi. Il killer entra nel magazzino e guarda in giro. Ren emette un suono involontario che attira l'attenzione del killer. Il killer si avvicina. Cosa fai? Cambi nascondiglio o rimani fermo?",
+                    entry: "Takashi decide di rimanere fermo dietro agli scaffali del magazzino, sperando che il killer non lo trovi. Il killer entra nel magazzino e guarda in giro. Takashi emette un suono involontario che attira l'attenzione del killer. Il killer si avvicina. Cosa fai? Cambi nascondiglio o rimani fermo?",
                     on: {
                         destra: {
                             target: "Muori"
@@ -504,7 +514,7 @@
                     }
                 },
                 "Il killer guarda in giro ma non scende in cantina": {
-                    entry: "Ren decide di scendere nella cantina del magazzino, sperando di trovare un nascondiglio più sicuro. Il killer entra nel magazzino e guarda in giro ma non scende in cantina. Successivamente se ne va. Ren sopravvive",
+                    entry: "Takashi decide di scendere nella cantina del magazzino, sperando di trovare un nascondiglio più sicuro. Il killer entra nel magazzino e guarda in giro ma non scende in cantina. Successivamente se ne va. Takashi sopravvive",
                     on: {
                         destra: {
                             target: "Sopravvivi"
