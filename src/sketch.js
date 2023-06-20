@@ -124,16 +124,16 @@ function createMachine(config) {
             choiceDiv.textContent = choice;
             choiceDiv.classList.add("option");
             choiceDiv.addEventListener("gesture-detected", () => {
-                if (!gameOver) {
-                    const targetState = stateConfig.on[choice].target;
-                    transition(targetState);
-                    console.log(targetState);
-                    txt = targetState.testo;
-                    typeWriter(txt, demoElement);
 
-                    // Chiamare `machine.send()` con l'evento appropriato
-                    machine.send(choice);
-                }
+                const targetState = stateConfig.on[choice].target;
+                transition(targetState);
+                console.log(targetState);
+                txt = targetState.testo;
+                typeWriter(txt, demoElement);
+
+                // Chiamare `machine.send()` con l'evento appropriato
+                machine.send(choice);
+
             });
 
             choicesEl.appendChild(choiceDiv);
@@ -149,7 +149,7 @@ function createMachine(config) {
 
     return {
         send: function (event) {
-            if (!gameOver) {
+
                 const textToType = "";
                 typeWriter(textToType, demoElement);
                 let stateConfig = config.states[currentState];
@@ -166,7 +166,6 @@ function createMachine(config) {
                     },
                 });
                 document.body.dispatchEvent(gestureEvent);
-            }
         },
     }
 }
@@ -335,24 +334,14 @@ const machine = createMachine({
 
             on: {
                 destra: {
-                    target: "Prossimo"
+                    target: "Start"
                 },
                 sinistra: {
-                    target: "Prossimo"
+                    target: "Start"
                 }
             },
 
             description: `Good ending`
-        },
-
-        Prossimo: {
-            on: {
-                sinistra: {
-                    target: "Start",
-                    action: () => resetGame()
-
-                }
-            }
         },
 
         Muori: {
@@ -360,10 +349,10 @@ const machine = createMachine({
 
             on: {
                 destra: {
-                    target: "Prossimo"
+                    target: "Start"
                 },
                 sinistra: {
-                    target: "Prossimo"
+                    target: "Start"
                 }
             },
 
