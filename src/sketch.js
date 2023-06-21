@@ -7,16 +7,6 @@ const demoElement = document.getElementById("demo");
 const ratio = window.innerWidth / 16 * 9;
 let body = document.querySelector('body');
 
-const cerchioRisposta = document.getElementbyId('cerchio');
-const rispostaRects = cerchioRisposta.getClientRects()[0];
-const rispostaObj = {
-    object: cerchioRisposta,
-    top: rispostaRects.top,
-    right: rispostaRects.right,
-    bottom: rispostaRects.bottom,
-    left: rispostaRects.left
-};
-
 
 
 async function setup() {
@@ -59,13 +49,6 @@ async function draw() {
                 }
             }
             circle(mappedPalmX, mappedPalmY, 50);
-
-            if (mappedPalmX > rispostaObj.left &&
-                mappedPalmX < rispostaObj.right &&
-                mappedPalmY > rispostaObj.top &&
-                mappedPalmY < rispostaObj.bottom) {
-                console.log('entrato');
-            }
 
             // Verifica se è trascorso abbastanza tempo dall'ultimo rilevamento della mano
             const currentTimetTime = new Date().getTime();
@@ -126,8 +109,8 @@ function createMachine(config) {
             resetGame();
         }
         // Cambia l'immagine di sfondo del body
-        body.style.backgroundImage = 'url(IMG/' + currentState + '.png)';
-        console.log("Percorso immagine:", "IMG/" + state + ".png");
+    body.style.backgroundImage = 'url(IMG/' + currentState +'.png)';
+    console.log("Percorso immagine:", "IMG/" + state + ".png");
     }
 
     function render() {
@@ -171,22 +154,22 @@ function createMachine(config) {
     return {
         send: function (event) {
 
-            const textToType = "";
-            typeWriter(textToType, demoElement);
-            let stateConfig = config.states[currentState];
-            let targetState = stateConfig.on[event].target;
-            transition(targetState);
-            console.log(targetState);
-            txt = targetState.testo;
-            typeWriter(txt, demoElement);
+                const textToType = "";
+                typeWriter(textToType, demoElement);
+                let stateConfig = config.states[currentState];
+                let targetState = stateConfig.on[event].target;
+                transition(targetState);
+                console.log(targetState);
+                txt = targetState.testo;
+                typeWriter(txt, demoElement);
 
-            // Chiamare il metodo `dispatchEvent` per attivare l'evento gesto
-            const gestureEvent = new CustomEvent("gesture-detected", {
-                detail: {
-                    gesture: event,
-                },
-            });
-            document.body.dispatchEvent(gestureEvent);
+                // Chiamare il metodo `dispatchEvent` per attivare l'evento gesto
+                const gestureEvent = new CustomEvent("gesture-detected", {
+                    detail: {
+                        gesture: event,
+                    },
+                });
+                document.body.dispatchEvent(gestureEvent);
         },
     }
 }
