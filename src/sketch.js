@@ -259,31 +259,31 @@ const machine = createMachine({
             entry: " Marco decide di andare a destra e si imbatte in una strada deserta. Cosa fa? (destra) Correre o (sinistra) proseguire in una via secondaria",
             on: {
                 destra: {
-                    target: "Marco corre urlando e il killer lo insegue"
+                    target: "Correre"
                 },
                 sinistra: {
-                    target: "Due edifici"
+                    target: "DueEdifici"
                 }
             }
         },
 
-        "Marco corre urlando e il killer lo insegue": {
+        "Correre": {
             entry: " Mentre Marco corre lungo la strada, il killer lo raggiunge e inizia una caccia spietata. Marco deve fare delle scelte rapide per sfuggirgli, cosa fai? (destra) ti fermi e lo affronti o (sinistra) urla aiuto",
             on: {
                 destra: {
                     target: "Muori"
                 },
                 sinistra: {
-                    target: "Trova un gruppo di persone"
+                    target: "Gruppo"
                 }
             }
         },
 
-        "Due edifici": {
+        "DueEdifici": {
             entry: " Marco cerca una via secondaria per evitare l'esposizione e continuare la fuga. Alla fine della strada si imbatte in due edifici: (destra) un vecchio magazzino e (sinistra) un edificio in costruzione",
             on: {
                 destra: {
-                    target: "Trovi un telefono e chiami la polizia"
+                    target: "Telefono"
                 },
                 sinistra: {
                     target: "Muori"
@@ -291,7 +291,7 @@ const machine = createMachine({
             }
         },
 
-        "Trova un gruppo di persone": {
+        "Gruppo": {
             entry: " Un gruppo di persone che hanno sentito le urla va incontro a Marco per capire cosa è successo, grazie a loro sopravvivi e il killer scappa via. (destra per completare)",
             on: {
                 destra: {
@@ -300,19 +300,19 @@ const machine = createMachine({
             }
         },
 
-        "Trovi un telefono e chiami la polizia": {
+        "Telefono": {
             entry: " All'interno del magazzino Marco scopre che c'è un telefono, lo raggiunge e chiama immediatamente la polizia. Loro lo avvisano che ci vorrà un po' prima che lo raggiungano, nel frattempo gli indicano che deve rimanere nascosto e stare in guardia. Dove ti nascondi? (destra) Scaffali o (sinistra) in cantina",
             on: {
                 destra: {
-                    target: "Il killer guarda in giro"
+                    target: "Scaffali"
                 },
                 sinistra: {
-                    target: "Il killer guarda in giro ma non scende in cantina"
+                    target: "Cantina"
                 }
             }
         },
 
-        "Il killer guarda in giro": {
+        "Scaffali": {
             entry: " Marco decide di rimanere fermo dietro agli scaffali del magazzino, sperando che il killer non lo trovi. Il killer entra nel magazzino e guarda in giro. Marco emette un suono involontario che attira l'attenzione del killer che si avvicina. Cosa fai? (destra) Cambi nascondiglio o (sinistra) rimani fermo?",
             on: {
                 destra: {
@@ -324,7 +324,7 @@ const machine = createMachine({
             }
         },
 
-        "Il killer guarda in giro ma non scende in cantina": {
+        "Cantina": {
             entry: " Marco decide di scendere nella cantina del magazzino, sperando di trovare un nascondiglio più sicuro. Il killer entra nel magazzino e guarda in giro ma non scende in cantina. Successivamente se ne va. Marco sopravvive (destra per completare)",
             on: {
                 destra: {
