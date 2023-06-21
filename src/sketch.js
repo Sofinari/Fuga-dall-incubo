@@ -109,8 +109,8 @@ function createMachine(config) {
             resetGame();
         }
         // Cambia l'immagine di sfondo del body
-    body.style.backgroundImage = 'url("../IMG/${currentState}.png")';
-    console.log("Percorso immagine:", "../IMG/" + state + ".png");
+    body.style.backgroundImage = 'url("IMG/${currentState}.png")';
+    console.log("Percorso immagine:", "IMG/" + state + ".png");
     }
 
     function render() {
