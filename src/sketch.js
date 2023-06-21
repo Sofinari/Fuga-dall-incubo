@@ -334,7 +334,7 @@ const machine = createMachine({
         },
 
         Sopravvivi: {
-            entry: "Congratulazioni sei sopravvissuto! Alza la mano sinistra (per due volte, una adesso e la seconda quando il testo sparisce) per provare altri percorsi!",
+            entry: " Congratulazioni sei sopravvissuto! Alza la mano sinistra (per due volte, una adesso e la seconda quando il testo sparisce) per provare altri percorsi!",
 
             on: {
                 destra: {
@@ -349,7 +349,7 @@ const machine = createMachine({
         },
 
         Muori: {
-            entry: "Hai perso! Alza la mano sinistra (per due volte, una adesso e la seconda quando il testo sparisce) per riprovarci",
+            entry: " Hai perso! Alza la mano sinistra (per due volte, una adesso e la seconda quando il testo sparisce) per riprovarci",
 
             on: {
                 destra: {
