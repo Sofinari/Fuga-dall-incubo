@@ -106,7 +106,6 @@ function createMachine(config) {
 
         if (currentState === "Muori" || currentState === "Sopravvivi") {
             gameOver = true;
-            resetGame();
         }
         // Cambia l'immagine di sfondo del body
     body.style.backgroundImage = 'url(IMG/' + currentState +'.png)';
@@ -145,7 +144,7 @@ function createMachine(config) {
 
         stateMachineEl.appendChild(choicesEl);
 
-        // Chiamare typeWriter con il testo di immissione dello stato corMarcote
+        // Chiamare typeWriter con il testo di immissione dello stato corFrancote
         typeWriter(stateConfig.entry, demoElement);
     }
 
@@ -190,7 +189,7 @@ const machine = createMachine({
         },
 
         "Inizio": {
-            entry: " Marco notò che il suo telefono era completamente scarico. Mentre cercava il caricatore nella cucina, udì un rumore improvviso provenire dal salotto. Qualcuno era in casa. Marco doveva decidere se cercare il caricatore (mano sinistra) per chiamare aiuto o nascondersi dietro la porta.(mano destra)",
+            entry: " Franco notò che il suo telefono era completamente scarico. Mentre cercava il caricatore nella cucina, udì un rumore improvviso provenire dal salotto. Qualcuno era in casa. Franco doveva decidere se cercare il caricatore (mano sinistra) per chiamare aiuto o nascondersi dietro la porta.(mano destra)",
             on: {
                 destra: {
                     target: "Porta"
@@ -202,7 +201,7 @@ const machine = createMachine({
         },
 
         "Porta": {
-            entry: " Marco si nascose dietro la porta per non farsi notare dall'intruso. Riuscì camminando di soppiatto a raggiungere il salotto. Cosa fai? Ti nascondi sotto il tavolo (mano sinistra) o dietro il divano (mano destra)?",
+            entry: " Franco si nascose dietro la porta per non farsi notare dall'intruso. Riuscì camminando di soppiatto a raggiungere il salotto. Cosa fai? Ti nascondi sotto il tavolo (mano sinistra) o dietro il divano (mano destra)?",
             on: {
                 destra: {
                     target: "Scappi"
@@ -214,7 +213,7 @@ const machine = createMachine({
         },
 
         "Scappi": {
-            entry: " Hai deciso di nasconderti dietro il divano. L'assassino non nota Marco ed esce dal salotto entrando in cucina, Marco sfrutta l'opportunità per scappare di casa. Corre per la strada e s'imbatte in un vicolo (M. destra)",
+            entry: " Hai deciso di nasconderti dietro il divano. L'assassino non nota Franco ed esce dal salotto entrando in cucina, Franco sfrutta l'opportunità per scappare di casa. Corre per la strada e s'imbatte in un vicolo (M. destra)",
             on: {
                 destra: {
                     target: "Vicolo"
@@ -223,7 +222,7 @@ const machine = createMachine({
         },
 
         "Vicolo": {
-            entry: " Marco si fermò per riprendere fiato ma non aveva molto tempo prima che il killer lo raggiungesse! Guardò davanti a sé e vide che aveva due opzioni, girare a sinistra o a destra",
+            entry: " Franco si fermò per riprendere fiato ma non aveva molto tempo prima che il killer lo raggiungesse! Guardò davanti a sé e vide che aveva due opzioni, girare a sinistra o a destra",
             on: {
                 sinistra: {
                     target: "Rete"
@@ -235,7 +234,7 @@ const machine = createMachine({
         },
 
         "Rete": {
-            entry: " Marco sceglie di andare a sinistra e si imbatte in una rete fatiscente che blocca il passaggio. Cosa fa? (destra) ritorna indietro o (sinistra) prova a superare la rete?",
+            entry: " Franco sceglie di andare a sinistra e si imbatte in una rete fatiscente che blocca il passaggio. Cosa fa? (destra) ritorna indietro o (sinistra) prova a superare la rete?",
             on: {
                 destra: {
                     target: "Principale"
@@ -247,7 +246,7 @@ const machine = createMachine({
         },
 
         "Principale": {
-            entry: " Marco ritorna nel vicolo principale e trova una piccola strada laterale che conduce a una stazione di servizio. Trova un telefono funzionante e chiama la polizia, ottenendo finalmente aiuto. (destra per avanzare)",
+            entry: " Franco ritorna nel vicolo principale e trova una piccola strada laterale che conduce a una stazione di servizio. Trova un telefono funzionante e chiama la polizia, ottenendo finalmente aiuto. (destra per avanzare)",
             on: {
                 destra: {
                     target: "Sopravvivi"
@@ -256,7 +255,7 @@ const machine = createMachine({
         },
 
         "Strada": {
-            entry: " Marco decide di andare a destra e si imbatte in una strada deserta. Cosa fa? (destra) Correre o (sinistra) proseguire in una via secondaria",
+            entry: " Franco decide di andare a destra e si imbatte in una strada deserta. Cosa fa? (destra) Correre o (sinistra) proseguire in una via secondaria",
             on: {
                 destra: {
                     target: "Correre"
@@ -268,7 +267,7 @@ const machine = createMachine({
         },
 
         "Correre": {
-            entry: " Mentre Marco corre lungo la strada, il killer lo raggiunge e inizia una caccia spietata. Marco deve fare delle scelte rapide per sfuggirgli, cosa fai? (destra) ti fermi e lo affronti o (sinistra) urla aiuto",
+            entry: " Mentre Franco corre lungo la strada, il killer lo raggiunge e inizia una caccia spietata. Franco deve fare delle scelte rapide per sfuggirgli, cosa fai? (destra) ti fermi e lo affronti o (sinistra) urla aiuto",
             on: {
                 destra: {
                     target: "Muori"
@@ -280,7 +279,7 @@ const machine = createMachine({
         },
 
         "DueEdifici": {
-            entry: " Marco cerca una via secondaria per evitare l'esposizione e continuare la fuga. Alla fine della strada si imbatte in due edifici: (destra) un vecchio magazzino e (sinistra) un edificio in costruzione",
+            entry: " Franco cerca una via secondaria per evitare l'esposizione e continuare la fuga. Alla fine della strada si imbatte in due edifici: (destra) un vecchio magazzino e (sinistra) un edificio in costruzione",
             on: {
                 destra: {
                     target: "Telefono"
@@ -292,7 +291,7 @@ const machine = createMachine({
         },
 
         "Gruppo": {
-            entry: " Un gruppo di persone che hanno sentito le urla va incontro a Marco per capire cosa è successo, grazie a loro sopravvivi e il killer scappa via. (destra per completare)",
+            entry: " Un gruppo di persone che hanno sentito le urla va incontro a Franco per capire cosa è successo, grazie a loro sopravvivi e il killer scappa via. (destra per completare)",
             on: {
                 destra: {
                     target: "Sopravvivi"
@@ -301,7 +300,7 @@ const machine = createMachine({
         },
 
         "Telefono": {
-            entry: " All'interno del magazzino Marco scopre che c'è un telefono, lo raggiunge e chiama immediatamente la polizia. Loro lo avvisano che ci vorrà un po' prima che lo raggiungano, nel frattempo gli indicano che deve rimanere nascosto e stare in guardia. Dove ti nascondi? (destra) Scaffali o (sinistra) in cantina",
+            entry: " All'interno del magazzino Franco scopre che c'è un telefono, lo raggiunge e chiama immediatamente la polizia. Loro lo avvisano che ci vorrà un po' prima che lo raggiungano, nel frattempo gli indicano che deve rimanere nascosto e stare in guardia. Dove ti nascondi? (destra) Scaffali o (sinistra) in cantina",
             on: {
                 destra: {
                     target: "Scaffali"
@@ -313,7 +312,7 @@ const machine = createMachine({
         },
 
         "Scaffali": {
-            entry: " Marco decide di rimanere fermo dietro agli scaffali del magazzino, sperando che il killer non lo trovi. Il killer entra nel magazzino e guarda in giro. Marco emette un suono involontario che attira l'attenzione del killer che si avvicina. Cosa fai? (destra) Cambi nascondiglio o (sinistra) rimani fermo?",
+            entry: " Franco decide di rimanere fermo dietro agli scaffali del magazzino, sperando che il killer non lo trovi. Il killer entra nel magazzino e guarda in giro. Franco emette un suono involontario che attira l'attenzione del killer che si avvicina. Cosa fai? (destra) Cambi nascondiglio o (sinistra) rimani fermo?",
             on: {
                 destra: {
                     target: "Muori"
@@ -325,7 +324,7 @@ const machine = createMachine({
         },
 
         "Cantina": {
-            entry: " Marco decide di scendere nella cantina del magazzino, sperando di trovare un nascondiglio più sicuro. Il killer entra nel magazzino e guarda in giro ma non scende in cantina. Successivamente se ne va. Marco sopravvive (destra per completare)",
+            entry: " Franco decide di scendere nella cantina del magazzino, sperando di trovare un nascondiglio più sicuro. Il killer entra nel magazzino e guarda in giro ma non scende in cantina. Successivamente se ne va. Franco sopravvive (destra per completare)",
             on: {
                 destra: {
                     target: "Sopravvivi"
@@ -334,7 +333,7 @@ const machine = createMachine({
         },
 
         Sopravvivi: {
-            entry: " Congratulazioni sei sopravvissuto! Alza la mano sinistra (per due volte, una adesso e la seconda quando il testo sparisce) per provare altri percorsi!",
+            entry: " Congratulazioni sei sopravvissuto! Alza una mano per provare altri percorsi!",
 
             on: {
                 destra: {
@@ -349,7 +348,7 @@ const machine = createMachine({
         },
 
         Muori: {
-            entry: " Hai perso! Alza la mano sinistra (per due volte, una adesso e la seconda quando il testo sparisce) per riprovarci",
+            entry: " Hai perso! Alza una mano per riprovarci",
 
             on: {
                 destra: {
@@ -366,13 +365,6 @@ const machine = createMachine({
     predictableActionArguments: true,
     preserveActionOrder: true
 });
-
-function resetGame() {
-    machine.send("Inizio");
-    txt = '';
-    typeWriter(txt, demoElement);
-}
-
 
 async function createDetector() {
     const mediaPipeConfig = {
