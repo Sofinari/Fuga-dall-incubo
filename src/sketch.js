@@ -5,6 +5,7 @@ let isHandInCircle = false; // Variabile per tracciare lo stato della mano nel c
 let lastDetectionTime = 0; // Variabile per tenere traccia dell'ultimo rilevamento della mano
 const demoElement = document.getElementById("demo");
 const ratio = window.innerWidth / 16 * 9;
+let body = document.querySelector('body');
 
 
 
@@ -108,7 +109,7 @@ function createMachine(config) {
             resetGame();
         }
         // Cambia l'immagine di sfondo del body
-    document.body.style.backgroundImage = `url("../IMG/${currentState}.png")`;
+    body.style.backgroundImage = 'url("../IMG/${currentState}.png")';
     console.log("Percorso immagine:", "../IMG/" + state + ".png");
     }
 
