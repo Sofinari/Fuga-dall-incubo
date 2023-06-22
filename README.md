@@ -135,4 +135,4 @@ Il mio progetto è stato pensato per gli amanti dei videogiochi che desiderano v
 
 
 ## Link al progetto su GitHub
-<a href ="https://github.com/Sofinari/Fuga-dall-incubo">https://github.com/Sofinari/Fuga-dall-incubo</a>
+<a href ="https://sofinari.github.io/Fuga-dall-incubo/">https://sofinari.github.io/Fuga-dall-incubo/</a>
