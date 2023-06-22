@@ -15,8 +15,8 @@ Nel mio progetto, ho affrontato il tema della progettazione di un sistema di int
 ## Riferimenti progettuali
 Mi sono ispirato ai giochi di scelta multipla, come "Detroit: Become Human", per la struttura narrativa del mio progetto. Ho cercato di creare un'esperienza interattiva in cui le decisioni dell'utente influenzano il percorso e l'esito della storia.
 
-[<img src="Documentazione/Detroit.jpg" width="500" alt="mappa delle scelte del gioco detroit become human">]()
-[<img src="Documentazione/Detroit-esempio.png" width="500" alt="Esempio della multipla scelta del gioco detroit become human">]()
+[<img src="doc/Detroit.jpg" width="500" alt="mappa delle scelte del gioco detroit become human">]()
+[<img src="doc/Detroit-esempio.png" width="500" alt="Esempio della multipla scelta del gioco detroit become human">]()
 
 
 
