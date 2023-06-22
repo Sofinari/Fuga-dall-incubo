@@ -1,3 +1,6 @@
+a = document.getElementById('audio1');
+a.onended = function () { setTimeout("a.play()", 1000) }
+
 let capture;
 let detector;
 let selectedHand = null;
